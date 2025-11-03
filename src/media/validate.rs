@@ -233,7 +233,7 @@ mod tests {
         let card_file = test_dir.join("test_deck.md");
 
         // Parse cloze card with missing media reference
-        let markdown = "C: The capital of [France] is ![](paris.jpg)";
+        let markdown = "C: The capital of ||France|| is ![](paris.jpg)";
         let parser = CardParser::new("test_deck".to_string(), card_file.clone());
         let cards = parser.parse(markdown).expect("Failed to parse cards");
 

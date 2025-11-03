@@ -1,4 +1,4 @@
 C:
-English: [fire]
+English: ||fire||
 
-French: [feu]
+French: ||feu||

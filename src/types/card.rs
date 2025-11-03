@@ -37,7 +37,7 @@ pub struct Card {
     /// The line number range that contains the card.
     range: (usize, usize),
     /// The card's content.
-    content: CardContent,
+    pub content: CardContent,
     /// The cached hash of the card's content.
     hash: CardHash,
 }
