@@ -18,7 +18,6 @@ use crate::error::Fallible;
 use crate::error::fail;
 use crate::types::card_hash::CardHash;
 use crate::types::performance::Performance;
-use crate::types::performance::ReviewedPerformance;
 
 /// An in-memory cache of card performance changes made during the current
 /// session. We use this so that updates are only persisted to the database
@@ -60,14 +59,10 @@ impl Cache {
 
     /// Update's a card's performance information. If the hash is not in the
     /// cache, returns an error.
-    pub fn update(
-        &mut self,
-        card_hash: CardHash,
-        performance: ReviewedPerformance,
-    ) -> Fallible<()> {
+    pub fn update(&mut self, card_hash: CardHash, performance: Performance) -> Fallible<()> {
         match self.changes.get_mut(&card_hash) {
             Some(p) => {
-                *p = Performance::Reviewed(performance);
+                *p = performance;
                 Ok(())
             }
             None => fail(format!("Card with hash {card_hash} not found in cache")),
@@ -84,6 +79,7 @@ mod tests {
     use super::*;
     use crate::error::fail;
     use crate::types::date::Date;
+    use crate::types::performance::ReviewedPerformance;
     use crate::types::timestamp::Timestamp;
 
     #[test]
@@ -114,7 +110,7 @@ mod tests {
         let review_count = 3;
         cache.update(
             card_hash,
-            ReviewedPerformance {
+            Performance::Reviewed(ReviewedPerformance {
                 last_reviewed_at,
                 stability,
                 difficulty,
@@ -122,7 +118,7 @@ mod tests {
                 interval_days,
                 due_date,
                 review_count,
-            },
+            }),
         )?;
         let retrieved = cache.get(card_hash)?;
         match retrieved {
@@ -169,7 +165,7 @@ mod tests {
         let interval_days = 1;
         let due_date = Date::today();
         let review_count = 3;
-        let rp = ReviewedPerformance {
+        let reviewed = Performance::Reviewed(ReviewedPerformance {
             last_reviewed_at,
             stability,
             difficulty,
@@ -177,8 +173,8 @@ mod tests {
             interval_days,
             due_date,
             review_count,
-        };
-        let res = cache.update(card_hash, rp);
+        });
+        let res = cache.update(card_hash, reviewed);
         assert!(res.is_err());
         Ok(())
     }
